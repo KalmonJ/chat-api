@@ -14,6 +14,18 @@ export class UsersController {
     });
   }
 
+  public static update(req: Request, res: Response) {
+    const updatedUser = usersModel.findByIdAndUpdate(req.params.userId, {
+      $set: req.body,
+    });
+
+    if (!!updatedUser) {
+      res.status(200).send({ message: "User successfully updated" });
+    } else {
+      res.status(500).send({ error: "User not updated" });
+    }
+  }
+
   public static async getAllUsers(req: Request, res: Response) {
     const users = await usersModel.find();
 
