@@ -6,7 +6,7 @@ const UsersModel = new mongoose.Schema({
   password: { type: String, required: true },
   username: { type: String, required: true },
   profileImage: { type: String },
-  friends: { Type: Array },
+  friends: Array,
 });
 
 UsersModel.pre("save", async function (next) {

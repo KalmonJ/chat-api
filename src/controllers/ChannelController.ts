@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import { channelModel } from "../models/channel";
 import { usersModel } from "../models/users";
 
@@ -39,7 +39,6 @@ export class ChannelController {
 
       res.status(200).json(filteredConversations);
     } catch (error) {
-      console.log(error, "erroro???");
       res.status(500).json(error);
     }
   }

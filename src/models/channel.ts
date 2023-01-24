@@ -6,6 +6,10 @@ const channel = new mongoose.Schema(
       type: Array,
       required: true,
     },
+
+    messages: {
+      type: Array,
+    },
   },
   { timestamps: true }
 );

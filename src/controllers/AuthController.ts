@@ -30,6 +30,7 @@ export class AuthController {
         username: user.username,
         email: user.email,
         uid: user.id,
+        friends: user.friends,
       });
     }
   }
