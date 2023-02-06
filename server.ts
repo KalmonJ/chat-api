@@ -9,14 +9,18 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
   },
 });
 
 io.on("connection", (socket) => {
+  socket.on("last_state_channel", async (data) => {
+    const lastStateChannel = await channelModel.findById(data.channelId);
+    socket.emit("updatedChannel", lastStateChannel);
+  });
+
   socket.on("message", async (data) => {
     const message = new messageModel(data);
-    await message.save();
+    const savedMessage = await message.save();
 
     const currentConversation = await channelModel.findById(
       data.conversationId
@@ -25,26 +29,36 @@ io.on("connection", (socket) => {
     const updatedChannel = await channelModel.findByIdAndUpdate(
       data.conversationId,
       {
-        messages: [...(currentConversation?.messages as any[]), data],
+        messages: [...(currentConversation?.messages as any[]), savedMessage],
       }
     );
 
     socket.emit("updatedChannel", updatedChannel);
 
-    socket.emit("messages", data);
+    socket.emit("messages", savedMessage);
+
+    socket.emit("new.message.listener", savedMessage);
   });
 
-  socket.on("addFriends", async (data) => {
+  socket.on("addFriend", async (data) => {
     const friend = await usersModel.findById(data.addId);
+
     if (typeof data.loggedUser.friends !== "undefined") {
       const friendList = [...data.loggedUser.friends, friend];
       data.loggedUser.friends = friendList;
+
       await usersModel.findByIdAndUpdate(data.loggedUser.uid, data.loggedUser);
+
       return socket.emit("updatedUser", data);
     }
+
     data.loggedUser["friends"] = [friend];
     await usersModel.findByIdAndUpdate(data.loggedUser.uid, data.loggedUser);
     socket.emit("updatedUser", data);
+  });
+
+  socket.on("update_user", async (data) => {
+    await usersModel.findByIdAndUpdate(data.uid, data);
   });
 });
 

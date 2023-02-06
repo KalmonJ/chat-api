@@ -17,6 +17,15 @@ const MessageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+
+    messageDate: {
+      type: Date,
+    },
+
+    location: {
+      lat: { type: Number },
+      lng: { type: Number },
+    },
   },
   { timestamps: true }
 );

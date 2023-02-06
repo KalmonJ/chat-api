@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { channelModel } from "../models/channel";
+import { messageModel } from "../models/message";
 import { usersModel } from "../models/users";
 
 export class ChannelController {
@@ -40,6 +41,36 @@ export class ChannelController {
       res.status(200).json(filteredConversations);
     } catch (error) {
       res.status(500).json(error);
+    }
+  }
+
+  public static async deleteChannel(req: Request, res: Response) {
+    try {
+      await channelModel.findByIdAndRemove(req.params.channelId);
+
+      res.status(200).send({
+        message: `channel with id:${req.params.channelId} was successfully deleted`,
+      });
+    } catch (error) {
+      res.status(404).send({
+        message: `channel with id: ${req.params.channelId} not found.`,
+      });
+    }
+  }
+
+  public static async updateChannel(req: Request, res: Response) {
+    try {
+      const channelId = req.params.channelId;
+      const payload = req.body;
+      const channel = await channelModel.findByIdAndUpdate(channelId, payload);
+      const messages = await messageModel.find({ conversationId: channelId });
+      messages.map(async (message) => await message.remove());
+
+      res
+        .status(200)
+        .send({ message: "successfully updated channel", channel });
+    } catch (error) {
+      res.status(404).send({ message: "Channel not found", error });
     }
   }
 }
